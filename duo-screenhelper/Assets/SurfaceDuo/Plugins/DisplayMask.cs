@@ -122,25 +122,27 @@ namespace Microsoft.Device.Display
         public RectInt[] GetBounds()
         {
             var jrects = _displayMask.Call<AndroidJavaObject>("getBounds");
-            var size = jrects.Call<int>("size");
-            
-            Debug.Log("BoundingRects size: " + size);
+            var isComplex = jrects.Call<bool>("isComplex"); // SKRegion
+            var isEmpty = jrects.Call<bool>("isEmpty"); // SKRegion
+            var isRect = jrects.Call<bool>("isRect"); // SKRegion
 
-            var rects = new RectInt[size];
+            Debug.LogWarning($"GetBounds isComplex:{isComplex} isEmpty:{isEmpty} isRect:{isRect}");
 
-            for (int i = 0; i < size; i++)
-            {
-                var jrect = jrects.Call<AndroidJavaObject>("get", i);
+            //var rects = new RectInt[size];
 
-                var left = jrect.Get<int>("left");
-                var top = jrect.Get<int>("top");
-                var width = jrect.Call<int>("width");
-                var height = jrect.Call<int>("height");
+            //for (int i = 0; i < size; i++)
+            //{
+            //    var jrect = jrects.Call<AndroidJavaObject>("get", i);
 
-                rects[i] = new RectInt(xMin: left, yMin: top, width: width, height: height);
-            }
+            //    var left = jrect.Get<int>("left");
+            //    var top = jrect.Get<int>("top");
+            //    var width = jrect.Call<int>("width");
+            //    var height = jrect.Call<int>("height");
 
-            return rects;
+            //    rects[i] = new RectInt(xMin: left, yMin: top, width: width, height: height);
+            //}
+
+            return new RectInt[0];
         }
 
         public void Dispose()

@@ -6,26 +6,40 @@ public class Button : MonoBehaviour
 {
     private void OnGUI()
     {
+        const float ROW_HEIGHT = 50.0f;
+        const float COL_WIDTH = 610.0f;
+
         //Changes both color and font size
         GUIStyle localStyle = new GUIStyle();
-        localStyle.normal.textColor = Color.blue;
+        localStyle.normal.textColor = Color.black;
         localStyle.fontSize = 50;
 
-        var text = "Dual screen device? " + ScreenHelper.IsDualScreenDevice();
-        GUI.Label(new Rect(2.0f, 2.0f, 400, 20), text, localStyle);
-
-
-        var o = Screen.orientation;
-        Debug.Log("Screen.orientation: " + o);
-        
-        GUI.Label(new Rect(2.0f, 100.0f, 400, 20), "Screen orientation: "+o.ToString(), localStyle);
-
+#if UNITY_EDITOR
+        //Hardcode the seam
         if (Screen.width == 2784)
         {
             GUI.backgroundColor = Color.gray;
             var r = new Rect(x: 1350, y: 0, width: 84, height: 1800);
             GUI.Box(r,"");
         }
+#endif
+
+
+        GUI.Label(new Rect(2.0f, 2.0f, 400, 20), "Dual screen device?", localStyle);
+        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 1, 200, 20), "Screen orientation:", localStyle);
+        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 2, 200, 20), "DisplayMask rect:", localStyle);
+        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 3, 200, 20), "ResourcesRectApprox rect:", localStyle);
+        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 4, 200, 20), "BoundingRectsForRot rect:", localStyle);
+        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 5, 200, 20), "GetBounds rect:", localStyle);
+        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 6, 200, 20), "IsDualMode:", localStyle);
+        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 7, 200, 20), "IsAppSpanned:", localStyle);
+        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 8, 200, 20), "IsDeviceSurfaceDuo:", localStyle);
+        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 9, 200, 20), "GetCurrentRotation:", localStyle);
+
+        localStyle.normal.textColor = Color.blue;
+        GUI.Label(new Rect(COL_WIDTH, 2.0f, 400, 20), ScreenHelper.IsDualScreenDevice().ToString(), localStyle);
+        GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 1, 400, 20), Screen.orientation.ToString(), localStyle);
+
         if (ScreenHelper.IsDualScreenDevice())
         {
             Debug.Log("Is DualScreen");
@@ -39,11 +53,9 @@ public class Button : MonoBehaviour
                 foreach (var rect in displayMask.GetBoundingRects())
                 {
                     Debug.Log("DisplayMask Rect: " + rect);
-                    Console.WriteLine("DisplayMask Rect: " + rect);
-                    GUI.Label(new Rect(2.0f, 50.0f, 400, 20), "DisplayMask Rect: " + rect, localStyle);
+                    GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 2, 400, 20), rect.ToString(), localStyle);
 
-                    GUI.backgroundColor = Color.green;
-
+                    var o = Screen.orientation;
                     if (o == ScreenOrientation.LandscapeLeft || o == ScreenOrientation.LandscapeRight)
                     {   // wide
                         var r = new Rect(x: rect.x - 25, y: rect.y, width: rect.width + 50, height: rect.height);
@@ -58,8 +70,91 @@ public class Button : MonoBehaviour
             }
             catch (System.Exception e)
             {
-                Debug.Log(e);
+                Debug.LogWarning("DisplayMask.FromResourcesRect: " + e);
+            }
+
+            try
+            {
+                var displayMask = DisplayMask.FromResourcesRectApproximation();
+                foreach (var rect in displayMask.GetBoundingRects())
+                {
+                    Debug.Log("ResourcesRectApprox Rect: " + rect);
+                    GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 3, 400, 20), rect.ToString(), localStyle);
+                }
+
+                foreach (var rect in displayMask.GetBoundingRectsForRotation(0))
+                {
+                    Debug.Log("BoundingRectsForRot Rect: " + rect);
+                    GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 4, 400, 20), rect.ToString(), localStyle);
+                }
+
+                Debug.Log("GetBounds fails right after this");
+                //UnityEngine.AndroidJavaException: java.lang.NoSuchMethodError: 
+                //no non-static method with name='size' signature='()I' in class Landroid.graphics.Region;
+                foreach (var region in displayMask.GetBounds())
+                {
+                    Debug.Log("GetBounds: " + region);
+                    GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 5, 400, 20), region.ToString(), localStyle);
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning("DisplayMask stuff: " + e);
+            }
+
+
+            try {
+                var isDualMode = ScreenHelper.IsDualMode();
+
+                GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 6, 400, 20), isDualMode.ToString(), localStyle);
+
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning("ScreenHelper.IsDualMode: " + e);
+            }
+
+            //try
+            //{
+            //    var isSpanned = ScreenHelper.IsAppSpanned();
+
+            //    GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 7, 400, 20), isSpanned.ToString(), localStyle);
+
+            //}
+            //catch (System.Exception e)
+            //{
+            //    Debug.LogWarning("ScreenHelper.IsAppSpanned: " + e);
+            //}
+
+            try
+            {
+                var isSurfaceDuo = ScreenHelper.IsDeviceSurfaceDuo();
+
+                GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 8, 400, 20), "IsDeviceSurfaceDuo: " + isSurfaceDuo, localStyle);
+
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning("ScreenHelper.IsDeviceSurfaceDuo: " + e);
+            }
+
+            try
+            {
+                var currentRotation = ScreenHelper.GetCurrentRotation();
+
+                GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 9, 400, 20), "GetCurrentRotation: " + currentRotation, localStyle);
+
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning("ScreenHelper.GetCurrentRotation: " + e);
             }
         }
+#if UNITY_EDITOR
+        else
+        {
+            GUI.Label(new Rect(2.0f, ROW_HEIGHT * 11, 400, 20), "(most dual-screen attributes have no value in editor)", localStyle);
+        }
+#endif
     }
 }
