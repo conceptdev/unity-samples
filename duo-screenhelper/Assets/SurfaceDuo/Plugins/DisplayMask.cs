@@ -19,6 +19,11 @@ namespace Microsoft.Device.Display
     /// </summary>
     public class DisplayMask : IDisposable
     {
+        /// <summary>
+        /// com.microsoft.device.display.DisplayMask
+        /// </summary>
+        static string DISPLAYMASK_CLASSNAME = "com.microsoft.device.display.DisplayMask";
+
         private readonly AndroidJavaObject _displayMask;
 
         private DisplayMask(AndroidJavaObject displayMask)
@@ -38,7 +43,7 @@ namespace Microsoft.Device.Display
                 var context = p.GetStatic<AndroidJavaObject>("currentActivity")
                     .Call<AndroidJavaObject>("getApplicationContext");
 
-                using (var dm = new AndroidJavaClass("com.microsoft.device.display.DisplayMask"))
+                using (var dm = new AndroidJavaClass(DISPLAYMASK_CLASSNAME))
                 {
                     return dm.CallStatic<AndroidJavaObject>("fromResourcesRect", context);
                 }
@@ -58,7 +63,7 @@ namespace Microsoft.Device.Display
                 var context = p.GetStatic<AndroidJavaObject>("currentActivity")
                     .Call<AndroidJavaObject>("getApplicationContext");
 
-                using (var dm = new AndroidJavaClass("com.microsoft.device.display.DisplayMask"))
+                using (var dm = new AndroidJavaClass(DISPLAYMASK_CLASSNAME))
                 {
                     return dm.CallStatic<AndroidJavaObject>("fromResourcesRectApproximation", context);
                 }

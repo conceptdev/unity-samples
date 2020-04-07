@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace Microsoft.Device.Display
 {
+    /// <summary>
+    /// https://docs.microsoft.com/dual-screen/android/api-reference/dualscreen-layout#screenhelper
+    /// </summary>
     public class ScreenHelper
     {
         /// <summary>
@@ -58,6 +61,9 @@ namespace Microsoft.Device.Display
             return isDuo;
         }
 
+        /// <summary>
+        /// Returns the coordinates of the Hinge in a Rect object.
+        /// </summary>
         public static RectInt GetHinge()
         {
             var hinge = OnPlayer.Run(p =>
@@ -83,6 +89,9 @@ namespace Microsoft.Device.Display
             else return new RectInt (0,0,0,0); // TODO: return null??
         }
 
+        /// <summary>
+        /// Returns a boolean that indicates whether the application is in spanned mode or not
+        /// </summary>
         public static bool IsDualMode()
         {
             var isDualMode = OnPlayer.Run(p =>
@@ -96,6 +105,9 @@ namespace Microsoft.Device.Display
             return isDualMode;
         }
 
+        /// <summary>
+        /// Returns the rotation of the screen - Surface.ROTATION_0, Surface.ROTATION_90, Surface.ROTATION_180, Surface.ROTATION_270
+        /// </summary>
         public static int GetCurrentRotation()
         {
             var rotation = OnPlayer.Run(p =>
@@ -104,16 +116,45 @@ namespace Microsoft.Device.Display
 
                 using (var dm = new AndroidJavaClass("com.microsoft.device.dualscreen.layout.ScreenHelper"))
                 {
-                    /*
-                     ScreenHelper.IsDeviceSurfaceDuo: UnityEngine.AndroidJavaException: 
-                     java.lang.NoSuchMethodError: no static method with name='isDeviceSurfaceDuo' 
-                     signature='(Lcom.unity3d.player.UnityPlayerActivity;)Ljava/lang/Object;' 
-                     in class Lcom.microsoft.device.dualscreen.layout.ScreenHelper;
-                     */
                     return dm.CallStatic<int>("getCurrentRotation", activity);
                 }
             });
             return rotation;
+        }
+
+        /// <summary>
+        /// Returns a list of two elements that contain the coordinates of the screen rectangles
+        /// </summary>
+        public static RectInt[] GetScreenRectangles()
+        {
+            var jScreenRects = OnPlayer.Run(p =>
+            {
+                var context = p.GetStatic<AndroidJavaObject>("currentActivity");
+
+                using (var dm = new AndroidJavaClass(SCREENHELPER_CLASSNAME))
+                {
+                    return dm.CallStatic<AndroidJavaObject>("getScreenRectangles", context);
+                }
+            });
+
+            var size = jScreenRects.Call<int>("size");
+            if (size > 0)
+            {
+                var rectangles = new RectInt[size];
+                for (var i = 0; i < size; i++)
+                {
+                    var jRect = jScreenRects.Call<AndroidJavaObject>("get", i);
+
+                    var left = jRect.Get<int>("left");
+                    var top = jRect.Get<int>("top");
+                    var width = jRect.Call<int>("width");
+                    var height = jRect.Call<int>("height");
+
+                    rectangles[i] = new RectInt(left, top, width, height);
+                }
+                return rectangles;
+            }
+            else return new RectInt[0]; // TODO: return null??
         }
     }
 }
