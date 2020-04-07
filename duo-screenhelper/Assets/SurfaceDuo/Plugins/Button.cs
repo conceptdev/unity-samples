@@ -31,10 +31,11 @@ public class Button : MonoBehaviour
         GUI.Label(new Rect(2.0f, ROW_HEIGHT * 3, 200, 20), "ResourcesRectApprox rect:", localStyle);
         GUI.Label(new Rect(2.0f, ROW_HEIGHT * 4, 200, 20), "BoundingRectsForRot rect:", localStyle);
         GUI.Label(new Rect(2.0f, ROW_HEIGHT * 5, 200, 20), "GetBounds rect:", localStyle);
-        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 6, 200, 20), "IsDualMode:", localStyle);
-        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 7, 200, 20), "IsAppSpanned:", localStyle);
+        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 7, 200, 20), "IsDualMode:", localStyle);
+        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 6, 200, 20), "-ScreenHelper-", localStyle);
         GUI.Label(new Rect(2.0f, ROW_HEIGHT * 8, 200, 20), "IsDeviceSurfaceDuo:", localStyle);
         GUI.Label(new Rect(2.0f, ROW_HEIGHT * 9, 200, 20), "GetCurrentRotation:", localStyle);
+        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 10, 200, 20), "GetHinge:", localStyle);
 
         localStyle.normal.textColor = Color.blue;
         GUI.Label(new Rect(COL_WIDTH, 2.0f, 400, 20), ScreenHelper.IsDualScreenDevice().ToString(), localStyle);
@@ -112,7 +113,7 @@ public class Button : MonoBehaviour
             try {
                 var isDualMode = ScreenHelper.IsDualMode();
 
-                GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 6, 400, 20), isDualMode.ToString(), localStyle);
+                GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 7, 400, 20), isDualMode.ToString(), localStyle);
 
             }
             catch (System.Exception e)
@@ -120,23 +121,11 @@ public class Button : MonoBehaviour
                 Debug.LogWarning("ScreenHelper.IsDualMode: " + e);
             }
 
-            //try
-            //{
-            //    var isSpanned = ScreenHelper.IsAppSpanned();
-
-            //    GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 7, 400, 20), isSpanned.ToString(), localStyle);
-
-            //}
-            //catch (System.Exception e)
-            //{
-            //    Debug.LogWarning("ScreenHelper.IsAppSpanned: " + e);
-            //}
-
             try
             {
                 var isSurfaceDuo = ScreenHelper.IsDeviceSurfaceDuo();
 
-                GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 8, 400, 20), "IsDeviceSurfaceDuo: " + isSurfaceDuo, localStyle);
+                GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 8, 400, 20), isSurfaceDuo.ToString(), localStyle);
 
             }
             catch (System.Exception e)
@@ -148,12 +137,24 @@ public class Button : MonoBehaviour
             {
                 var currentRotation = ScreenHelper.GetCurrentRotation();
 
-                GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 9, 400, 20), "GetCurrentRotation: " + currentRotation, localStyle);
+                GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 9, 400, 20), currentRotation.ToString(), localStyle);
 
             }
             catch (System.Exception e)
             {
                 Debug.LogWarning("ScreenHelper.GetCurrentRotation: " + e);
+            }
+
+            try
+            {
+                var hinge = ScreenHelper.GetHinge();
+
+                GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 10, 400, 20), hinge.ToString(), localStyle);
+
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning("ScreenHelper.GetHinge: " + e);
             }
         }
 #if UNITY_EDITOR

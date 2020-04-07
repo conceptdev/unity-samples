@@ -49,61 +49,51 @@ namespace Microsoft.Device.Display
             var isDuo = OnPlayer.Run(p =>
             {
                 var activity = p.GetStatic<AndroidJavaObject>("currentActivity");
+
                 using (var dm = new AndroidJavaClass(SCREENHELPER_CLASSNAME))
                 {
-                    return dm.CallStatic<AndroidJavaObject>("isDeviceSurfaceDuo", activity);
+                    return dm.CallStatic<bool>("isDeviceSurfaceDuo", activity);
                 }
             });
-            return isDuo.Call<bool>("get");
+            return isDuo;
         }
 
-        //public RectInt GetHinge()
-        //{
-        //    var hinge = OnPlayer.Run(p =>
-        //    {
-        //        var context = p.GetStatic<AndroidJavaObject>("currentActivity")
-        //            .Call<AndroidJavaObject>("getApplicationContext");
+        public static RectInt GetHinge()
+        {
+            var hinge = OnPlayer.Run(p =>
+            {
+                var context = p.GetStatic<AndroidJavaObject>("currentActivity");
 
-        //        using (var dm = new AndroidJavaClass("com.microsoft.device.dualscreen.layout.ScreenHelper"))
-        //        {
-        //            return dm.CallStatic<AndroidJavaObject>("getHinge", context);
-        //        }
-        //    });
+                using (var dm = new AndroidJavaClass(SCREENHELPER_CLASSNAME))
+                {
+                    return dm.CallStatic<AndroidJavaObject>("getHinge", context);
+                }
+            });
 
-        //    Debug.Log("hinge: " + hinge);
+            Debug.Log("hinge: " + hinge);
+            if (hinge != null)
+            {
+                var left = hinge.Get<int>("left");
+                var top = hinge.Get<int>("top");
+                var width = hinge.Call<int>("width");
+                var height = hinge.Call<int>("height");
 
-        //    var size = hinge.Call<int>("size");
-                
-        //    var jrect = jrects.Call<AndroidJavaObject>("get", i);
-
-        //    var left = jrect.Get<int>("left");
-        //    var top = jrect.Get<int>("top");
-        //    var width = jrect.Call<int>("width");
-        //    var height = jrect.Call<int>("height");
-
-        //    return new RectInt(left, top, width, height);
-        //}
+                return new RectInt(left, top, width, height);
+            }
+            else return new RectInt (0,0,0,0); // TODO: return null??
+        }
 
         public static bool IsDualMode()
         {
             var isDualMode = OnPlayer.Run(p =>
             {
                 var activity = p.GetStatic<AndroidJavaObject>("currentActivity");
-                
-                Debug.LogWarning("activity: " + activity.Call<string>("toString"));
-
-                using (var dm = new AndroidJavaClass("com.microsoft.device.dualscreen.layout.ScreenHelper"))
+                using (var sc = new AndroidJavaClass("com.microsoft.device.dualscreen.layout.ScreenHelper"))
                 {
-                    /*
-                    ScreenHelper.IsDualMode: UnityEngine.AndroidJavaException: 
-                    java.lang.NoSuchMethodError: no static method with name='isDualMode' 
-                    signature='(Lcom.unity3d.player.UnityPlayerActivity;)Ljava/lang/Object;'
-                    in class Lcom.microsoft.device.dualscreen.layout.ScreenHelper;
-                     */
-                    return dm.CallStatic<AndroidJavaObject>("isDualMode", activity);
+                    return sc.CallStatic<bool>("isDualMode", activity);
                 }
             });
-            return isDualMode.Call<bool>("get");
+            return isDualMode;
         }
 
         public static int GetCurrentRotation()
@@ -120,10 +110,10 @@ namespace Microsoft.Device.Display
                      signature='(Lcom.unity3d.player.UnityPlayerActivity;)Ljava/lang/Object;' 
                      in class Lcom.microsoft.device.dualscreen.layout.ScreenHelper;
                      */
-                    return dm.CallStatic<AndroidJavaObject>("getCurrentRotation", activity);
+                    return dm.CallStatic<int>("getCurrentRotation", activity);
                 }
             });
-            return rotation.Call<int>("get");
+            return rotation;
         }
     }
 }
