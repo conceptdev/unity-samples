@@ -82,20 +82,26 @@ public class Button : MonoBehaviour
                     GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 3, 400, 20), rect.ToString(), localStyle);
                 }
 
-                foreach (var rect in displayMask.GetBoundingRectsForRotation(0))
+
+                int orientation = Surface.ROTATION_0; // Portrait
+                switch (Screen.orientation) { 
+                case ScreenOrientation.LandscapeLeft:
+                    orientation = Surface.ROTATION_90; break;
+                case ScreenOrientation.LandscapeRight:
+                    orientation = Surface.ROTATION_270; break;
+                case ScreenOrientation.PortraitUpsideDown:
+                    orientation = Surface.ROTATION_180; break;
+                }
+                foreach (var rect in displayMask.GetBoundingRectsForRotation(orientation))
                 {
                     Debug.Log("BoundingRectsForRot Rect: " + rect);
                     GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 4, 400, 20), rect.ToString(), localStyle);
                 }
 
-                Debug.Log("GetBounds fails right after this");
-                //UnityEngine.AndroidJavaException: java.lang.NoSuchMethodError: 
-                //no non-static method with name='size' signature='()I' in class Landroid.graphics.Region;
-                foreach (var region in displayMask.GetBounds())
-                {
-                    Debug.Log("GetBounds: " + region);
-                    GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 5, 400, 20), region.ToString(), localStyle);
-                }
+                var regionBounds = displayMask.GetBoundsRegionBounds();
+                Debug.Log("GetBounds: " + regionBounds);
+                GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 5, 400, 20), regionBounds.ToString(), localStyle);
+                
             }
             catch (System.Exception e)
             {

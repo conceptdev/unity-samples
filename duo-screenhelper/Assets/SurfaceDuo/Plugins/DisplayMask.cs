@@ -119,7 +119,12 @@ namespace Microsoft.Device.Display
         /// <summary>
         /// Returns the bounding region of the mask
         /// </summary>
-        public RectInt[] GetBounds()
+        /// <remarks>
+        /// DisplayMask.getBounds returns an SKRegion which doesn't have a simple
+        /// equivalent in C# (that I could think of). For Surface Duo the code just
+        /// confirms it's a rectangle and calls getBounds() on the region.
+        /// </remarks>
+        public RectInt GetBoundsRegionBounds()
         {
             var jrects = _displayMask.Call<AndroidJavaObject>("getBounds");
             var isComplex = jrects.Call<bool>("isComplex"); // SKRegion
@@ -128,21 +133,18 @@ namespace Microsoft.Device.Display
 
             Debug.LogWarning($"GetBounds isComplex:{isComplex} isEmpty:{isEmpty} isRect:{isRect}");
 
-            //var rects = new RectInt[size];
+            if (isRect & !isEmpty & !isComplex)
+            {
+                var rect = jrects.Call<AndroidJavaObject>("getBounds");
 
-            //for (int i = 0; i < size; i++)
-            //{
-            //    var jrect = jrects.Call<AndroidJavaObject>("get", i);
+                var left = rect.Get<int>("left");
+                var top = rect.Get<int>("top");
+                var width = rect.Call<int>("width");
+                var height = rect.Call<int>("height");
 
-            //    var left = jrect.Get<int>("left");
-            //    var top = jrect.Get<int>("top");
-            //    var width = jrect.Call<int>("width");
-            //    var height = jrect.Call<int>("height");
-
-            //    rects[i] = new RectInt(xMin: left, yMin: top, width: width, height: height);
-            //}
-
-            return new RectInt[0];
+                return new RectInt(xMin: left, yMin: top, width: width, height: height);
+            }
+            return new RectInt (0,0,0,0);
         }
 
         public void Dispose()
