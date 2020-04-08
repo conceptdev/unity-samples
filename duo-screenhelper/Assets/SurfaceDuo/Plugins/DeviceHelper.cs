@@ -1,5 +1,4 @@
 ﻿using System;
-using System;
 using UnityEngine;
 
 namespace Microsoft.Device.Display

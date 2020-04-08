@@ -86,7 +86,7 @@ namespace Microsoft.Device.Display
 
                 return new RectInt(left, top, width, height);
             }
-            else return new RectInt (0,0,0,0); // TODO: return null??
+            else return new RectInt (0,0,0,0); // TODO: cannot return null - is ok?
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace Microsoft.Device.Display
             var isDualMode = OnPlayer.Run(p =>
             {
                 var activity = p.GetStatic<AndroidJavaObject>("currentActivity");
-                using (var sc = new AndroidJavaClass("com.microsoft.device.dualscreen.layout.ScreenHelper"))
+                using (var sc = new AndroidJavaClass(SCREENHELPER_CLASSNAME))
                 {
                     return sc.CallStatic<bool>("isDualMode", activity);
                 }
@@ -113,8 +113,7 @@ namespace Microsoft.Device.Display
             var rotation = OnPlayer.Run(p =>
             {
                 var activity = p.GetStatic<AndroidJavaObject>("currentActivity");
-
-                using (var dm = new AndroidJavaClass("com.microsoft.device.dualscreen.layout.ScreenHelper"))
+                using (var dm = new AndroidJavaClass(SCREENHELPER_CLASSNAME))
                 {
                     return dm.CallStatic<int>("getCurrentRotation", activity);
                 }
@@ -130,7 +129,6 @@ namespace Microsoft.Device.Display
             var jScreenRects = OnPlayer.Run(p =>
             {
                 var context = p.GetStatic<AndroidJavaObject>("currentActivity");
-
                 using (var dm = new AndroidJavaClass(SCREENHELPER_CLASSNAME))
                 {
                     return dm.CallStatic<AndroidJavaObject>("getScreenRectangles", context);
@@ -151,6 +149,7 @@ namespace Microsoft.Device.Display
                     var height = jRect.Call<int>("height");
 
                     rectangles[i] = new RectInt(left, top, width, height);
+                    Debug.LogWarning($"GetScreenRectangles [{i}]: {rectangles[i]}");
                 }
                 return rectangles;
             }

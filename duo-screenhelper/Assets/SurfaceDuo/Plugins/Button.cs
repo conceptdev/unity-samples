@@ -53,7 +53,7 @@ public class Button : MonoBehaviour
                 var displayMask = DisplayMask.FromResourcesRect();
 
                 Debug.Log("We have a DisplayMask");
-
+                // draw the DisplayMask rectangle, but with a 25 pixel bleed so you can see on the device
                 foreach (var rect in displayMask.GetBoundingRects())
                 {
                     Debug.Log("DisplayMask Rect: " + rect);
@@ -63,12 +63,12 @@ public class Button : MonoBehaviour
                     if (o == ScreenOrientation.LandscapeLeft || o == ScreenOrientation.LandscapeRight)
                     {   // wide
                         var r = new Rect(x: rect.x - 25, y: rect.y, width: rect.width + 50, height: rect.height);
-                        GUI.Box(r, "Ah");
+                        GUI.Box(r, "HV");
                     }
                     else
                     {   // portrait - tall
                         var r = new Rect(x: rect.y, y: rect.x - 25, width: rect.height, height: rect.width + 50);
-                        GUI.Box(r, "Ahhhhhhhhhhhhhhhhhhhh");
+                        GUI.Box(r, "Hinge horizontal");
                     }
                 }
             }
