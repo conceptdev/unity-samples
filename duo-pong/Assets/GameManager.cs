@@ -25,6 +25,22 @@ public class GameManager : MonoBehaviour {
 
 		isDualScreenDevice = ScreenHelper.IsDeviceSurfaceDuo();
 		Debug.LogWarning("ScreenHelper.IsDeviceSurfaceDuo:" + isDualScreenDevice);
+
+		if (isDualScreenDevice)
+		{	// duo reports rotation strangely...
+			if (Screen.orientation == ScreenOrientation.LandscapeLeft)
+			{
+				Screen.orientation = ScreenOrientation.LandscapeRight;
+			}
+			else if (Screen.orientation == ScreenOrientation.LandscapeRight)
+			{
+				Screen.orientation = ScreenOrientation.LandscapeLeft;
+			}
+			else
+			{	// TODO: consider forcing landscape ....
+				Screen.orientation = ScreenOrientation.AutoRotation;
+			}
+		}
 	}
 
 	public static void Score(string wallID) {
