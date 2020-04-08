@@ -6,8 +6,12 @@ namespace Microsoft.Device.Display
     public static class DeviceHelper
     {
         /// <summary>
-        /// Call this method before other methods that rely on dual-screen features
+        /// Determine whether your app is running on a dual-screen device. 
+        /// You should perform this check before you call APIs from the Surface Duo SDK
         /// </summary>
+        /// <remarks>
+        /// https://docs.microsoft.com/en-us/dual-screen/android/sample-code/is-dual-screen-device?tabs=java
+        /// </remarks>
         public static bool IsDualScreenDevice()
         {
 #if !UNITY_EDITOR && UNITY_ANDROID

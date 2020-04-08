@@ -4,14 +4,41 @@ using UnityEngine;
 namespace Microsoft.Device.Display
 {
     /// <summary>
-    /// https://docs.microsoft.com/dual-screen/android/api-reference/dualscreen-layout#screenhelper
+    /// Surface Duo ScreenHelper class.
+    /// Call <see cref="DeviceHelper.IsDualScreenDevice"/> before using methods on this class.
     /// </summary>
+    /// <remarks>
+    /// Requires gradle updates:
+    /// 
+    /// allprojects { repositories {
+    /// maven {
+    ///     url 'https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1'
+    /// }
+    /// 
+    /// and 
+    /// 
+    /// dependencies {
+    ///     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.61"
+    ///     implementation "com.microsoft.device:dualscreen-layout:0.9.0"
+    /// }
+    /// 
+    /// Docs:
+    /// https://docs.microsoft.com/dual-screen/android/api-reference/dualscreen-layout#screenhelper
+    /// </remarks>
     public class ScreenHelper
     {
         /// <summary>
         /// com.microsoft.device.dualscreen.layout.ScreenHelper
         /// </summary>
         static string SCREENHELPER_CLASSNAME = "com.microsoft.device.dualscreen.layout.ScreenHelper";
+
+        /// <summary>
+        /// Determine whether your app is running on a dual-screen device. 
+        /// You should perform this check before you call APIs from the Surface Duo SDK
+        /// </summary>
+        /// <remarks>
+        /// https://docs.microsoft.com/en-us/dual-screen/android/sample-code/is-dual-screen-device?tabs=java
+        /// </remarks>
         public static bool IsDualScreenDevice()
         {
 #if !UNITY_EDITOR && UNITY_ANDROID
@@ -32,21 +59,9 @@ namespace Microsoft.Device.Display
 #endif
         }
         /// <summary>
-        /// https://docs.microsoft.com/dual-screen/android/sample-code/is-app-spanned
+        /// Is the device a dual-screen Surface Duo.
+        /// Check before calling other SDK methods.
         /// </summary>
-        public static bool IsAppSpanned()
-        {
-            var displayMask = DisplayMask.FromResourcesRectApproximation();
-#if !UNITY_EDITOR && UNITY_ANDROID
-            
-            throw new NotImplementedException("IsAppSpanned is not yet implemented");
-            
-            return false;
-#else
-            return false;
-#endif
-        }
-
         public static bool IsDeviceSurfaceDuo()
         {
             var isDuo = OnPlayer.Run(p =>

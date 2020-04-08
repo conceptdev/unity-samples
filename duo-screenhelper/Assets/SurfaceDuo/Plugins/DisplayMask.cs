@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Dynamic;
 using UnityEngine;
 
 namespace Microsoft.Device.Display
@@ -14,9 +15,14 @@ namespace Microsoft.Device.Display
         public static int ROTATION_180 = 2;
         public static int ROTATION_270 = 3;
     }
+
     /// <summary>
-    /// https://docs.microsoft.com/dual-screen/android/api-reference/display-mask
+    /// Surface Duo DisplayMask helper. 
+    /// Call <see cref="DeviceHelper.IsDualScreenDevice"/> before using methods on this class.
     /// </summary>
+    /// <remarks>
+    /// https://docs.microsoft.com/dual-screen/android/api-reference/display-mask
+    /// </remarks>
     public class DisplayMask : IDisposable
     {
         /// <summary>
@@ -150,6 +156,52 @@ namespace Microsoft.Device.Display
                 return new RectInt(xMin: left, yMin: top, width: width, height: height);
             }
             return new RectInt (0,0,0,0);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// https://docs.microsoft.com/en-us/dual-screen/android/sample-code/is-app-spanned?tabs=java</remarks>
+        public static bool IsAppSpanned()
+        {
+            var isSpanned = OnPlayer.Run(p =>
+            {
+                var context = p.GetStatic<AndroidJavaObject>("currentActivity")
+                    .Call<AndroidJavaObject>("getApplicationContext");
+                using (var dm = new AndroidJavaClass(DISPLAYMASK_CLASSNAME))
+                {
+                    var displayMask = dm.CallStatic<AndroidJavaObject>("fromResourcesRectApproximation", context);
+                    var region = displayMask.Call<AndroidJavaObject>("getBounds");
+                    var boundings = displayMask.Call<AndroidJavaObject>("getBoundingRects");
+                    var size = boundings.Call<int>("size");
+                    if (size > 0)
+                    {
+                        var first = boundings.Call<AndroidJavaObject>("get", 0);
+                        var rootView = p.GetStatic<AndroidJavaObject>("currentActivity")
+                            .Call<AndroidJavaObject>("getWindow")
+                            .Call<AndroidJavaObject>("getDecorView")
+                            .Call<AndroidJavaObject>("getRootView");
+                        var drawingRect = new AndroidJavaObject("android.graphics.Rect");
+                        rootView.Call("getDrawingRect", drawingRect);
+                        if (first.Call<bool>("intersect", drawingRect))
+                        {
+                            Debug.LogWarning($"Dual screen - intersect");
+                            return true;
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"Single screen - not intersect");
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            });
+            return isSpanned;
         }
 
         public void Dispose()
