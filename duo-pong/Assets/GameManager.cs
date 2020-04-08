@@ -1,18 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using Microsoft.Device.Display;
 public class GameManager : MonoBehaviour {
 
 	public static int PlayerScore1 = 0;
 	public static int PlayerScore2 = 0;
 	public GUISkin layout;
 
-	private bool isDuoWide = false;
+	//private bool isDuoWide = false;
 	private float buttonY = 35;
 	private float buttonX = -60;
 	private float messagePlayer1 = -150, messagePlayer2 = -150;
 	private int lastScreenWidth = 0;
+	private bool isDualScreenDevice = false;
 
 	GameObject theBall;
 
@@ -21,6 +22,9 @@ public class GameManager : MonoBehaviour {
 		theBall = GameObject.FindGameObjectWithTag ("Ball");
 		Debug.LogWarning("GameManager.Start Screen.width:" + Screen.width);
 		lastScreenWidth = Screen.width;
+
+		isDualScreenDevice = ScreenHelper.IsDeviceSurfaceDuo();
+		Debug.LogWarning("ScreenHelper.IsDeviceSurfaceDuo:" + isDualScreenDevice);
 	}
 
 	public static void Score(string wallID) {
@@ -32,12 +36,12 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void OnGUI() {
-		if (lastScreenWidth != Screen.width)
-		{
+		if (isDualScreenDevice && lastScreenWidth != Screen.width)
+		{	// dual-screen and has been spanned or rotated...
+			var isSpanned = ScreenHelper.IsDualMode();
 			lastScreenWidth = Screen.width;
-			if (lastScreenWidth == 2784)
+			if (isSpanned)//lastScreenWidth == 2784)
 			{	// move button messages around seam
-				isDuoWide = true;
 				buttonX = 300;
 				buttonY = 20;
 				messagePlayer1 = -900;
@@ -45,9 +49,8 @@ public class GameManager : MonoBehaviour {
 			}
 			else
 			{	// revert to defaults (centered)
-				isDuoWide = true;
-				buttonX = 35;
-				buttonY = 60;
+				buttonX = -60;
+				buttonY = 35;
 				messagePlayer1 = -150;
 				messagePlayer2 = -150;
 			}

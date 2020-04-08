@@ -20,6 +20,9 @@ allprojects {
         flatDir {
             dirs 'libs'
         }
+        maven {
+            url 'https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1'
+        }
     }
 }
 
@@ -84,3 +87,7 @@ android {
         }
     }
 }**SPLITS_VERSION_CODE****REPOSITORIES****SOURCE_BUILD_SETUP**
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.61"
+    implementation "com.microsoft.device:dualscreen-layout:0.9.0"
+}
