@@ -1,12 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerControls : MonoBehaviour {
 
 	public KeyCode moveUp = KeyCode.W;
 	public KeyCode moveDown = KeyCode.S;
 	public float speed = 10.0f; // HARDCODED
+	public int player = 1; 
 
 	private float boundY = 2.5f; // HARDCODED
 	private float boundHeight = 5.0f; // HARDCODED
@@ -15,6 +14,8 @@ public class PlayerControls : MonoBehaviour {
 	private float height;
 	private float middleX;
 	private int lastScreenWidth = 0;
+
+	private float lastYPosition = 0;
 
 	// Use this for initialization
 	void Start () 
@@ -43,23 +44,25 @@ public class PlayerControls : MonoBehaviour {
 				if (touch.phase == TouchPhase.Moved)
 				{
 					Vector2 tpos = touch.position;
-
+					
 					var tposYpercent = (1 - (tpos.y / height)); // % from bottom up, converted to top-down
 					var worldY = boundHeight * tposYpercent;
 					var worldYadjusted = boundY - worldY;
 
 					Debug.Log($"TOUCH touch-pos.y: {tpos.y}  tposYpercent:{tposYpercent}  worldY:{worldY}  worldYadjusted:{worldYadjusted}");
 
-					if (tpos.x > middleX && pos.x > 0)
-					{
+					if (tpos.x > middleX && player == 2) // pos.x > 0)
+					{// right side of screen
+						position = new Vector3(pos.x, worldYadjusted, 0.0f);
+						transform.position = position;
+						
+					} 
+					else if (tpos.x < middleX && player == 1) // pos.x < 0)
+					{// left side of screen
 						position = new Vector3(pos.x, worldYadjusted, 0.0f);
 						transform.position = position;
 					}
-					else if (tpos.x < middleX && pos.x < 0)
-					{
-						position = new Vector3(pos.x, worldYadjusted, 0.0f);
-						transform.position = position;
-					}
+					lastYPosition = worldYadjusted;
 				}
 			}
 		}
