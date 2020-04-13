@@ -64,16 +64,27 @@ namespace Microsoft.Device.Display
         /// </summary>
         public static bool IsDeviceSurfaceDuo()
         {
-            var isDuo = OnPlayer.Run(p =>
+#if !UNITY_EDITOR && UNITY_ANDROID
+            try
             {
-                var activity = p.GetStatic<AndroidJavaObject>("currentActivity");
-
-                using (var dm = new AndroidJavaClass(SCREENHELPER_CLASSNAME))
+                var isDuo = OnPlayer.Run(p =>
                 {
-                    return dm.CallStatic<bool>("isDeviceSurfaceDuo", activity);
-                }
-            });
-            return isDuo;
+                    var activity = p.GetStatic<AndroidJavaObject>("currentActivity");
+
+                    using (var dm = new AndroidJavaClass(SCREENHELPER_CLASSNAME))
+                    {
+                        return dm.CallStatic<bool>("isDeviceSurfaceDuo", activity);
+                    }
+                });
+                return isDuo;
+            }
+            catch
+            {
+                return false;
+            }
+#else
+            return false;
+#endif
         }
 
         /// <summary>
@@ -121,7 +132,7 @@ namespace Microsoft.Device.Display
         }
 
         /// <summary>
-        /// Returns the rotation of the screen - Surface.ROTATION_0, Surface.ROTATION_90, Surface.ROTATION_180, Surface.ROTATION_270
+        /// Returns the rotation of the screen - Surface.ROTATION_0 (0), Surface.ROTATION_90 (1), Surface.ROTATION_180 (2), Surface.ROTATION_270 (3)
         /// </summary>
         public static int GetCurrentRotation()
         {
@@ -169,6 +180,51 @@ namespace Microsoft.Device.Display
                 return rectangles;
             }
             else return new RectInt[0]; // TODO: return null??
+        }
+
+
+        const int ROTATION_0 = 0;
+        const int ROTATION_90 = 1;
+        const int ROTATION_180 = 2;
+        const int ROTATION_270 = 3;
+
+        /// <summary>
+        /// Duo-aware landscape status
+        /// </summary>
+        /// <remarks>
+        /// https://github.com/xamarin/Xamarin.Forms/blob/master/Xamarin.Forms.DualScreen/DualScreenService.android.cs#L142-L158
+        /// </remarks>
+        public static bool IsLandscape ()
+        {
+            if (IsDeviceSurfaceDuo())
+            {
+                var rotation = ScreenHelper.GetCurrentRotation();
+                return (rotation == ROTATION_270 || rotation == ROTATION_90);
+            }
+            else
+            {
+#if !UNITY_EDITOR && UNITY_ANDROID
+                // rely on Android-specific code here?
+                var isLandscape = OnPlayer.Run(p =>
+                {
+                    var context = p.GetStatic<AndroidJavaObject>("currentActivity");
+                    if (context == null) return false;
+
+                    var orientation = context.Call<AndroidJavaObject>("getResources")
+                            .Call<AndroidJavaObject>("getConfiguration")
+                            .Call<int>("orientation");
+
+                    using (var dm = new AndroidJavaClass("android.content.res.Configuration"))
+                    {   // https://developer.android.com/reference/android/content/res/Configuration#ORIENTATION_LANDSCAPE
+                        return orientation == dm.GetStatic<int>("ORIENTATION_LANDSCAPE");
+                    }                    
+                });
+                return isLandscape;
+#else
+                // too hacky?
+                return Screen.width > Screen.height; //HACK:??
+#endif
+            }
         }
     }
 }

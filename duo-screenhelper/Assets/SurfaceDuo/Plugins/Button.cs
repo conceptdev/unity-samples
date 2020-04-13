@@ -11,8 +11,9 @@ public class Button : MonoBehaviour
 #if UNITY_ANDROID
         plugin = new AndroidJavaClass("jp.kshoji.unity.sensor.UnitySensorPlugin").CallStatic<AndroidJavaObject>("getInstance");
         if (plugin != null)
-        {
-            plugin.Call("startSensorListening", "accelerometer");
+        {// will be in AndroidX in future
+         // https://developer.android.com/reference/android/hardware/Sensor#TYPE_HINGE_ANGLE
+         // https://developer.android.com/reference/android/hardware/Sensor#STRING_TYPE_HINGE_ANGLE
             plugin.Call("startSensorListening", "hingeangle"); // 'hingeangle' is a static identifier in the java plugin
         }
 #endif
@@ -64,8 +65,8 @@ public class Button : MonoBehaviour
         GUI.Label(new Rect(2.0f, ROW_HEIGHT * 12, 200, 20), "GetCurrentRotation:", localStyle);
         GUI.Label(new Rect(2.0f, ROW_HEIGHT * 13, 200, 20), "GetHinge:", localStyle);
         GUI.Label(new Rect(2.0f, ROW_HEIGHT * 14, 200, 20), "GetScreenRectangles:", localStyle); // two rows
-        GUI.Label(new Rect(HEAD_INDENT, ROW_HEIGHT * 16, 200, 20), "-Sensors-", localStyle);
-        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 17, 200, 20), "Accelerometer:", localStyle); // just as a test
+        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 16, 200, 20), "IsLandscape:", localStyle);
+        GUI.Label(new Rect(HEAD_INDENT, ROW_HEIGHT * 17, 200, 20), "-Sensors-", localStyle);
         GUI.Label(new Rect(2.0f, ROW_HEIGHT * 18, 200, 20), "Hinge angle:", localStyle);
         
 
@@ -207,18 +208,23 @@ public class Button : MonoBehaviour
             {
                 Debug.LogWarning("ScreenHelper.GetHinge: " + e);
             }
+            try
+            {
+                var isLandscape = ScreenHelper.IsLandscape();
+                GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 16, 400, 20), isLandscape.ToString(), localStyle);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning("ScreenHelper.GetHinge: " + e);
+            }
 #if UNITY_ANDROID
             if (plugin != null)
             {
                 try
                 {
-                    float[] sensorValue = plugin.Call<float[]>("getSensorValues", "accelerometer");
-                    Debug.Log($"Accelerometer value: {sensorValue.Length}");
-                    GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 17, 400, 20), $"{sensorValue[0].ToString()}, {sensorValue[1].ToString()}, {sensorValue[2].ToString()}", localStyle);
-
                     float[] hingeValue = plugin.Call<float[]>("getSensorValues", "hingeangle"); // 'hingeangle' is a static identifier in the java plugin
                     Debug.Log($"Hinge angle value: {hingeValue.Length}");
-                    GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 18, 400, 20), $"{hingeValue[0].ToString()}", localStyle);
+                    GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 17, 400, 20), $"{hingeValue[0].ToString()}", localStyle);
                 }
                 catch (Exception e)
                 {
@@ -227,7 +233,7 @@ public class Button : MonoBehaviour
             }
             else
             {
-                GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 17, 400, 20), $"Error creating sensor reader", localStyle);
+                GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 18, 400, 20), $"Error creating sensor reader", localStyle);
             }
 #endif
         }
