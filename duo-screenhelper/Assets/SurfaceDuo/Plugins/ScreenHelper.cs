@@ -34,7 +34,9 @@ namespace Microsoft.Device.Display
 
         /// <summary>
         /// Determine whether your app is running on a dual-screen device. 
-        /// You should perform this check before you call APIs from the Surface Duo SDK
+        /// You should perform this check before you call APIs from the Surface Duo SDK.
+        /// This method uses regular Android hasSystemFeature check, it does NOT require
+        /// any custom SDK be referenced.
         /// </summary>
         /// <remarks>
         /// https://docs.microsoft.com/en-us/dual-screen/android/sample-code/is-dual-screen-device?tabs=java
@@ -59,8 +61,8 @@ namespace Microsoft.Device.Display
 #endif
         }
         /// <summary>
-        /// Is the device a dual-screen Surface Duo.
-        /// Check before calling other SDK methods.
+        /// Is the device a dual-screen Surface Duo?
+        /// Uses the SDK ScreenHelper.isDeviceSurfaceDuo method
         /// </summary>
         public static bool IsDeviceSurfaceDuo()
         {
@@ -180,51 +182,6 @@ namespace Microsoft.Device.Display
                 return rectangles;
             }
             else return new RectInt[0]; // TODO: return null??
-        }
-
-
-        const int ROTATION_0 = 0;
-        const int ROTATION_90 = 1;
-        const int ROTATION_180 = 2;
-        const int ROTATION_270 = 3;
-
-        /// <summary>
-        /// Duo-aware landscape status
-        /// </summary>
-        /// <remarks>
-        /// https://github.com/xamarin/Xamarin.Forms/blob/master/Xamarin.Forms.DualScreen/DualScreenService.android.cs#L142-L158
-        /// </remarks>
-        public static bool IsLandscape ()
-        {
-            if (IsDeviceSurfaceDuo())
-            {
-                var rotation = ScreenHelper.GetCurrentRotation();
-                return (rotation == ROTATION_270 || rotation == ROTATION_90);
-            }
-            else
-            {
-#if !UNITY_EDITOR && UNITY_ANDROID
-                // rely on Android-specific code here?
-                var isLandscape = OnPlayer.Run(p =>
-                {
-                    var context = p.GetStatic<AndroidJavaObject>("currentActivity");
-                    if (context == null) return false;
-
-                    var orientation = context.Call<AndroidJavaObject>("getResources")
-                            .Call<AndroidJavaObject>("getConfiguration")
-                            .Call<int>("orientation");
-
-                    using (var dm = new AndroidJavaClass("android.content.res.Configuration"))
-                    {   // https://developer.android.com/reference/android/content/res/Configuration#ORIENTATION_LANDSCAPE
-                        return orientation == dm.GetStatic<int>("ORIENTATION_LANDSCAPE");
-                    }                    
-                });
-                return isLandscape;
-#else
-                // too hacky?
-                return Screen.width > Screen.height; //HACK:??
-#endif
-            }
         }
     }
 }
