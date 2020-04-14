@@ -4,29 +4,16 @@ using UnityEngine;
 
 public class Button : MonoBehaviour
 {
-    private AndroidJavaObject plugin;
+    HingeSensor hingeSensor;
 
     void Start()
     {
-#if UNITY_ANDROID
-        plugin = new AndroidJavaClass("jp.kshoji.unity.sensor.UnitySensorPlugin").CallStatic<AndroidJavaObject>("getInstance");
-        if (plugin != null)
-        {// will be in AndroidX in future
-         // https://developer.android.com/reference/android/hardware/Sensor#TYPE_HINGE_ANGLE
-         // https://developer.android.com/reference/android/hardware/Sensor#STRING_TYPE_HINGE_ANGLE
-            plugin.Call("startSensorListening", "hingeangle"); // 'hingeangle' is a static identifier in the java plugin
-        }
-#endif
+        hingeSensor = new HingeSensor();
     }
+
     void OnApplicationQuit()
     {
-#if UNITY_ANDROID
-        if (plugin != null)
-        {
-            plugin.Call("terminate");
-            plugin = null;
-        }
-#endif
+        hingeSensor?.StopSensing();
     }
 
 
@@ -214,12 +201,12 @@ public class Button : MonoBehaviour
             }
 
 #if UNITY_ANDROID
-            if (plugin != null)
+            if (hingeSensor != null)
             {
                 try
                 {
-                    float[] hingeValue = plugin.Call<float[]>("getSensorValues", "hingeangle"); // 'hingeangle' is a static identifier in the java plugin
-                    GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 17, 400, 20), $"{hingeValue[0].ToString()}°", localStyle);
+                    var angle = hingeSensor.GetHingeAngle();
+                    GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 17, 400, 20), $"{angle}°", localStyle);
                 }
                 catch (Exception e)
                 {
