@@ -10,7 +10,7 @@ namespace Microsoft.Device.Display
         /// You should perform this check before you call APIs from the Surface Duo SDK
         /// </summary>
         /// <remarks>
-        /// https://docs.microsoft.com/en-us/dual-screen/android/sample-code/is-dual-screen-device?tabs=java
+        /// https://docs.microsoft.com/dual-screen/android/sample-code/is-dual-screen-device
         /// </remarks>
         public static bool IsDualScreenDevice()
         {
