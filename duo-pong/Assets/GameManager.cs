@@ -50,6 +50,24 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void OnGUI() {
+
+#if UNITY_EDITOR
+		//Hardcode the seam to specific width (2784x1800)
+		if (Screen.width == 2784)
+		{
+			GUI.backgroundColor = Color.gray;
+			var r = new Rect(x: 1350, y: 0, width: 84, height: 1800);
+			GUI.Box(r, "");
+		}
+		else if (Screen.height == 2784)
+		{
+			GUI.backgroundColor = Color.gray;
+			var r = new Rect(x: 0, y: 1350, width: 1800, height: 84);
+			GUI.Box(r, "");
+		}
+#endif
+
+
 		if (isDualScreenDevice && lastScreenWidth != Screen.width)
 		{	// dual-screen and has been spanned or rotated...
 			var isSpanned = ScreenHelper.IsDualMode();
