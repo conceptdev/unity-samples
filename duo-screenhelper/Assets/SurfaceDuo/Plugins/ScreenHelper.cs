@@ -34,7 +34,9 @@ namespace Microsoft.Device.Display
 
         /// <summary>
         /// Determine whether your app is running on a dual-screen device. 
-        /// You should perform this check before you call APIs from the Surface Duo SDK
+        /// You should perform this check before you call APIs from the Surface Duo SDK.
+        /// This method uses regular Android hasSystemFeature check, it does NOT require
+        /// any custom SDK be referenced.
         /// </summary>
         /// <remarks>
         /// https://docs.microsoft.com/en-us/dual-screen/android/sample-code/is-dual-screen-device?tabs=java
@@ -59,21 +61,32 @@ namespace Microsoft.Device.Display
 #endif
         }
         /// <summary>
-        /// Is the device a dual-screen Surface Duo.
-        /// Check before calling other SDK methods.
+        /// Is the device a dual-screen Surface Duo?
+        /// Uses the SDK ScreenHelper.isDeviceSurfaceDuo method
         /// </summary>
         public static bool IsDeviceSurfaceDuo()
         {
-            var isDuo = OnPlayer.Run(p =>
+#if !UNITY_EDITOR && UNITY_ANDROID
+            try
             {
-                var activity = p.GetStatic<AndroidJavaObject>("currentActivity");
-
-                using (var dm = new AndroidJavaClass(SCREENHELPER_CLASSNAME))
+                var isDuo = OnPlayer.Run(p =>
                 {
-                    return dm.CallStatic<bool>("isDeviceSurfaceDuo", activity);
-                }
-            });
-            return isDuo;
+                    var activity = p.GetStatic<AndroidJavaObject>("currentActivity");
+
+                    using (var dm = new AndroidJavaClass(SCREENHELPER_CLASSNAME))
+                    {
+                        return dm.CallStatic<bool>("isDeviceSurfaceDuo", activity);
+                    }
+                });
+                return isDuo;
+            }
+            catch
+            {
+                return false;
+            }
+#else
+            return false;
+#endif
         }
 
         /// <summary>
@@ -121,7 +134,7 @@ namespace Microsoft.Device.Display
         }
 
         /// <summary>
-        /// Returns the rotation of the screen - Surface.ROTATION_0, Surface.ROTATION_90, Surface.ROTATION_180, Surface.ROTATION_270
+        /// Returns the rotation of the screen - Surface.ROTATION_0 (0), Surface.ROTATION_90 (1), Surface.ROTATION_180 (2), Surface.ROTATION_270 (3)
         /// </summary>
         public static int GetCurrentRotation()
         {

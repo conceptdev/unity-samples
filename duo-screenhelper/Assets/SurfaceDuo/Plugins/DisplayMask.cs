@@ -159,10 +159,11 @@ namespace Microsoft.Device.Display
         }
 
         /// <summary>
-        /// 
+        /// Whether the app is spanned across both screens
         /// </summary>
         /// <remarks>
-        /// https://docs.microsoft.com/en-us/dual-screen/android/sample-code/is-app-spanned?tabs=java</remarks>
+        /// https://docs.microsoft.com/en-us/dual-screen/android/sample-code/is-app-spanned?tabs=java
+        /// </remarks>
         public static bool IsAppSpanned()
         {
             var isSpanned = OnPlayer.Run(p =>

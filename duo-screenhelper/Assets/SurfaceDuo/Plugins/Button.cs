@@ -4,43 +4,75 @@ using UnityEngine;
 
 public class Button : MonoBehaviour
 {
+    private AndroidJavaObject plugin;
+
+    void Start()
+    {
+#if UNITY_ANDROID
+        plugin = new AndroidJavaClass("jp.kshoji.unity.sensor.UnitySensorPlugin").CallStatic<AndroidJavaObject>("getInstance");
+        if (plugin != null)
+        {// will be in AndroidX in future
+         // https://developer.android.com/reference/android/hardware/Sensor#TYPE_HINGE_ANGLE
+         // https://developer.android.com/reference/android/hardware/Sensor#STRING_TYPE_HINGE_ANGLE
+            plugin.Call("startSensorListening", "hingeangle"); // 'hingeangle' is a static identifier in the java plugin
+        }
+#endif
+    }
+    void OnApplicationQuit()
+    {
+#if UNITY_ANDROID
+        if (plugin != null)
+        {
+            plugin.Call("terminate");
+            plugin = null;
+        }
+#endif
+    }
+
+
+    const float LEFT_MARGIN = 5f;
+    const float ROW_HEIGHT = 50.0f;
+    const float COL_WIDTH = 570.0f;
+    const float HEAD_INDENT = 410.0f;
     private void OnGUI()
     {
-        const float ROW_HEIGHT = 50.0f;
-        const float COL_WIDTH = 610.0f;
-        const float HEAD_INDENT = 410.0f;
-
         //Changes both color and font size
         GUIStyle localStyle = new GUIStyle();
         localStyle.normal.textColor = Color.black;
         localStyle.fontSize = 45;
 
 #if UNITY_EDITOR
-        //Hardcode the seam to specific width (2784x1800)
+        // Hardcode the seam for the Unity game preview
         if (Screen.width == 2784)
         {
             GUI.backgroundColor = Color.gray;
-            var r = new Rect(x: 1350, y: 0, width: 84, height: 1800);
-            GUI.Box(r,"");
+            GUI.Box(new Rect(x: 1350, y: 0, width: 84, height: 1800),"");
+        }
+        else if (Screen.height == 2784)
+        {
+            GUI.backgroundColor = Color.gray;
+            var r = new Rect(x: 0, y: 1350, width: 1800, height: 84);
+            GUI.Box(r, "");
         }
 #endif
 
-        GUI.Label(new Rect(2.0f, 2.0f, 200, 20), "Unity screen orientation:", localStyle);
+        GUI.Label(new Rect(LEFT_MARGIN, 2.0f, 200, 20), "Unity screen orientation:", localStyle);
         GUI.Label(new Rect(HEAD_INDENT, ROW_HEIGHT * 1, 400, 20), "-DeviceHelper-", localStyle);
-        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 2, 200, 20), "IsDualScreenDevice:", localStyle);
+        GUI.Label(new Rect(LEFT_MARGIN, ROW_HEIGHT * 2, 200, 20), "IsDualScreenDevice:", localStyle);
         GUI.Label(new Rect(HEAD_INDENT, ROW_HEIGHT * 3, 200, 20), "-DisplayMask-", localStyle);
-        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 4, 200, 20), "DisplayMask rect:", localStyle);
-        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 5, 200, 20), "ResourcesRectApprox:", localStyle);
-        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 6, 200, 20), "BoundingRectsForRot:", localStyle);
-        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 7, 200, 20), "GetBoundsRegionBounds:", localStyle);
-        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 8, 200, 20), "IsAppSpanned:", localStyle);
+        GUI.Label(new Rect(LEFT_MARGIN, ROW_HEIGHT * 4, 200, 20), "DisplayMask rect:", localStyle);
+        GUI.Label(new Rect(LEFT_MARGIN, ROW_HEIGHT * 5, 200, 20), "ResourcesRectApprox:", localStyle);
+        GUI.Label(new Rect(LEFT_MARGIN, ROW_HEIGHT * 6, 200, 20), "BoundingRectsForRot:", localStyle);
+        GUI.Label(new Rect(LEFT_MARGIN, ROW_HEIGHT * 7, 200, 20), "GetBoundsRegionBounds:", localStyle);
+        GUI.Label(new Rect(LEFT_MARGIN, ROW_HEIGHT * 8, 200, 20), "IsAppSpanned:", localStyle);
         GUI.Label(new Rect(HEAD_INDENT, ROW_HEIGHT * 9, 200, 20), "-ScreenHelper-", localStyle);
-        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 10, 200, 20), "IsDualMode:", localStyle);
-        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 11, 200, 20), "IsDeviceSurfaceDuo:", localStyle);
-        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 12, 200, 20), "GetCurrentRotation:", localStyle);
-        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 13, 200, 20), "GetHinge:", localStyle);
-        GUI.Label(new Rect(2.0f, ROW_HEIGHT * 14, 200, 20), "GetScreenRectangles:", localStyle);
-
+        GUI.Label(new Rect(LEFT_MARGIN, ROW_HEIGHT * 10, 200, 20), "IsDeviceSurfaceDuo:", localStyle);
+        GUI.Label(new Rect(LEFT_MARGIN, ROW_HEIGHT * 11, 200, 20), "IsDualMode:", localStyle);
+        GUI.Label(new Rect(LEFT_MARGIN, ROW_HEIGHT * 12, 200, 20), "GetCurrentRotation:", localStyle);
+        GUI.Label(new Rect(LEFT_MARGIN, ROW_HEIGHT * 13, 200, 20), "GetHinge:", localStyle);
+        GUI.Label(new Rect(LEFT_MARGIN, ROW_HEIGHT * 14, 200, 20), "GetScreenRectangles:", localStyle); // two rows
+        GUI.Label(new Rect(HEAD_INDENT, ROW_HEIGHT * 16, 200, 20), "-Sensors-", localStyle);
+        GUI.Label(new Rect(LEFT_MARGIN, ROW_HEIGHT * 17, 200, 20), "Hinge angle:", localStyle);
         
 
         localStyle.normal.textColor = Color.blue;
@@ -125,27 +157,26 @@ public class Button : MonoBehaviour
                 Debug.LogWarning("DisplayMask.IsAppSpanned: " + e);
             }
 
-            try {
-                var isDualMode = ScreenHelper.IsDualMode();
-
-                GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 10, 400, 20), isDualMode.ToString(), localStyle);
-
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogWarning("ScreenHelper.IsDualMode: " + e);
-            }
-
             try
             {
                 var isSurfaceDuo = ScreenHelper.IsDeviceSurfaceDuo();
-
-                GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 11, 400, 20), isSurfaceDuo.ToString(), localStyle);
+                GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 10, 400, 20), isSurfaceDuo.ToString(), localStyle);
 
             }
             catch (System.Exception e)
             {
                 Debug.LogWarning("ScreenHelper.IsDeviceSurfaceDuo: " + e);
+            }
+
+            try
+            {
+                var isDualMode = ScreenHelper.IsDualMode();
+                GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 11, 400, 20), isDualMode.ToString() + "     (same as 'Is Spanned?')", localStyle);
+
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning("ScreenHelper.IsDualMode: " + e);
             }
 
             try
@@ -181,11 +212,30 @@ public class Button : MonoBehaviour
             {
                 Debug.LogWarning("ScreenHelper.GetHinge: " + e);
             }
+
+#if UNITY_ANDROID
+            if (plugin != null)
+            {
+                try
+                {
+                    float[] hingeValue = plugin.Call<float[]>("getSensorValues", "hingeangle"); // 'hingeangle' is a static identifier in the java plugin
+                    GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 17, 400, 20), $"{hingeValue[0].ToString()}°", localStyle);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogWarning($"Sensor read error: {e}");
+                }
+            }
+            else
+            {
+                GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 17, 400, 20), $"Error creating sensor reader", localStyle);
+            }
+#endif
         }
 #if UNITY_EDITOR
         else
         {
-            GUI.Label(new Rect(2.0f, ROW_HEIGHT * 16, 400, 20), "(most dual-screen attributes have no value in editor)", localStyle);
+            GUI.Label(new Rect(LEFT_MARGIN, ROW_HEIGHT * 20, 400, 20), "(most dual-screen attributes have no value in editor)", localStyle);
         }
 #endif
     }

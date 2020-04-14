@@ -50,6 +50,7 @@ namespace Microsoft.Device.Display
 
         public static bool IsDeviceSurfaceDuo()
         {
+#if !UNITY_EDITOR && UNITY_ANDROID
             var isDuo = OnPlayer.Run(p =>
             {
                 var activity = p.GetStatic<AndroidJavaObject>("currentActivity");
@@ -60,6 +61,10 @@ namespace Microsoft.Device.Display
                 }
             });
             return isDuo;
+#else
+            Debug.LogError("IsDeviceSurfaceDuo UNITY_EDITOR?");
+            return false;
+#endif
         }
 
         /// <summary>

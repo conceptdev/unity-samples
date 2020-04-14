@@ -39,5 +39,4 @@ public class BallControl : MonoBehaviour {
 			rb2d.velocity = vel;
 		}
 	}
-
 }
