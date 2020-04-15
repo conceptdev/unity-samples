@@ -19,19 +19,29 @@ namespace Microsoft.Device.Display
         const string sensorName = "hingeangle"; // 'hingeangle' is a static identifier in the java plugin
 
         /// <summary>
-        /// Create an object to 
+        /// Only get an object when the plugin is created
         /// </summary>
-        public HingeSensor()
+        HingeSensor(AndroidJavaObject sensorPlugin)
+        {
+            plugin = sensorPlugin;
+        }
+        /// <summary>
+        /// Create an object to read the hinge sensor
+        /// </summary>
+        public static HingeSensor Start()
         {
 #if UNITY_ANDROID
-            plugin = new AndroidJavaClass("jp.kshoji.unity.sensor.UnitySensorPlugin").CallStatic<AndroidJavaObject>("getInstance");
+            var plugin = new AndroidJavaClass("jp.kshoji.unity.sensor.UnitySensorPlugin").CallStatic<AndroidJavaObject>("getInstance");
             if (plugin != null)
             {// will be in AndroidX in future
              // https://developer.android.com/reference/android/hardware/Sensor#TYPE_HINGE_ANGLE
              // https://developer.android.com/reference/android/hardware/Sensor#STRING_TYPE_HINGE_ANGLE
                 plugin.Call("startSensorListening", sensorName);
+                var hs = new HingeSensor(plugin);
+                return hs;
             }
-#endif
+#endif   
+            return null;
         }
 
         /// <summary>
