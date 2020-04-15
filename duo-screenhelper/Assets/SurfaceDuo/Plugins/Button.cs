@@ -29,16 +29,16 @@ public class Button : MonoBehaviour
         localStyle.fontSize = 45;
 
 #if UNITY_EDITOR
-        // Hardcode the seam for the Unity game preview
-        if (Screen.width == 2784)
-        {
+        // Hardcode the hinge mask for the Unity game preview
+        if (Screen.width == DeviceHelper.SURFACEDUO_SPANNEDWIDTH)
+        { // double-portrait
             GUI.backgroundColor = Color.gray;
-            GUI.Box(new Rect(x: 1350, y: 0, width: 84, height: 1800),"");
+            GUI.Box(new Rect(x: DeviceHelper.SURFACEDUO_SCREENWIDTH, y: 0, width: DeviceHelper.SURFACEDUO_HINGEWIDTH, height: DeviceHelper.SURFACEDUO_SCREENHEIGHT),"");
         }
-        else if (Screen.height == 2784)
-        {
+        else if (Screen.height == DeviceHelper.SURFACEDUO_SPANNEDHEIGHT)
+        { // double-landscape
             GUI.backgroundColor = Color.gray;
-            var r = new Rect(x: 0, y: 1350, width: 1800, height: 84);
+            var r = new Rect(x: 0, y: DeviceHelper.SURFACEDUO_SCREENWIDTH, width: DeviceHelper.SURFACEDUO_SCREENHEIGHT, height: DeviceHelper.SURFACEDUO_HINGEWIDTH);
             GUI.Box(r, "");
         }
 #endif

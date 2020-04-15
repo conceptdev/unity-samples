@@ -18,6 +18,9 @@ namespace Microsoft.Device.Display
         AndroidJavaObject plugin;
         const string sensorName = "hingeangle"; // 'hingeangle' is a static identifier in the java plugin
 
+        /// <summary>
+        /// Create an object to 
+        /// </summary>
         public HingeSensor()
         {
 #if UNITY_ANDROID
