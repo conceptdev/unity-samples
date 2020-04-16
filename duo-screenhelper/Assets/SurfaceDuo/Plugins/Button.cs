@@ -144,6 +144,7 @@ public class Button : MonoBehaviour
                 catch (Exception e)
                 {
                     Debug.LogWarning($"Hinge sensor read error: {e}");
+                    GUI.Label(new Rect(COL_WIDTH, ROW_HEIGHT * 13, 400, 20), e.ToString(), localStyle);
                 }
             }
             else

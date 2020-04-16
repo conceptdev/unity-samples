@@ -42,8 +42,6 @@ namespace Microsoft.Device.Display
         /// </summary>
         public static DisplayMask FromResourcesRect()
         {
-            Debug.Log("DisplayMask.FromResourcesRect: ");
-
             var mask = OnPlayer.Run(p =>
             {
                 var context = p.GetStatic<AndroidJavaObject>("currentActivity")

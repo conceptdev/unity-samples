@@ -16,8 +16,7 @@ namespace Microsoft.Device.Display
     public class HingeSensor : IDisposable
     {
         AndroidJavaObject plugin;
-        const string sensorName = "hingeangle"; // 'hingeangle' is a static identifier in the java plugin
-
+        
         /// <summary>
         /// Only get an object when the plugin is created
         /// </summary>
@@ -31,17 +30,28 @@ namespace Microsoft.Device.Display
         public static HingeSensor Start()
         {
 #if UNITY_ANDROID
-            var plugin = new AndroidJavaClass("jp.kshoji.unity.sensor.UnitySensorPlugin").CallStatic<AndroidJavaObject>("getInstance");
-            if (plugin != null)
-            {// will be in AndroidX in future
-             // https://developer.android.com/reference/android/hardware/Sensor#TYPE_HINGE_ANGLE
-             // https://developer.android.com/reference/android/hardware/Sensor#STRING_TYPE_HINGE_ANGLE
-                plugin.Call("startSensorListening", sensorName);
-                var hs = new HingeSensor(plugin);
-                return hs;
-            }
-#endif   
+            var sensor = OnPlayer.Run(p =>
+            {
+                var context = p.GetStatic<AndroidJavaObject>("currentActivity");
+
+                var plugin = new AndroidJavaClass("com.microsoft.device.dualscreen.unity.HingeAngleSensor")
+                        .CallStatic<AndroidJavaObject>("getInstance", context);
+
+                if (plugin != null) { 
+                    plugin.Call("setupSensor");
+                    var hs = new HingeSensor(plugin);
+                    return hs;    
+                }
+                else
+                {
+                    return null;
+                }
+            });
+                
+            return sensor;
+#else   
             return null;
+#endif
         }
 
         /// <summary>
@@ -52,8 +62,9 @@ namespace Microsoft.Device.Display
 #if UNITY_ANDROID
             if (plugin != null)
             {
-                float[] valueArray = plugin.Call<float[]>("getSensorValues", sensorName);
-                return valueArray[0];
+                //float[] valueArray = plugin.Call<float[]>("getSensorValues", sensorName);
+                float angle = plugin.Call<float>("getHingeAngle");
+                return angle;
             }
             else return -1;
 #else
@@ -65,7 +76,7 @@ namespace Microsoft.Device.Display
         { 
             if (plugin != null)
             {
-                plugin.Call("terminate");
+                plugin.Call("dispose");
                 plugin = null;
             }
         }
@@ -73,7 +84,7 @@ namespace Microsoft.Device.Display
         {
             if (plugin != null)
             {
-                plugin.Call("terminate");
+                plugin.Call("dispose");
                 plugin = null;
             }
         }
