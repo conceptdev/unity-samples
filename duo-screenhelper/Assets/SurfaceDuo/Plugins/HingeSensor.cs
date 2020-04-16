@@ -39,8 +39,7 @@ namespace Microsoft.Device.Display
 
                 if (plugin != null) { 
                     plugin.Call("setupSensor");
-                    var hs = new HingeSensor(plugin);
-                    return hs;    
+                    return new HingeSensor(plugin);
                 }
                 else
                 {
