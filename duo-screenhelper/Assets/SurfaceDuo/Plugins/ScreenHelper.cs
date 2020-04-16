@@ -104,7 +104,6 @@ namespace Microsoft.Device.Display
                 }
             });
 
-            Debug.Log("hinge: " + hinge);
             if (hinge != null)
             {
                 var left = hinge.Get<int>("left");

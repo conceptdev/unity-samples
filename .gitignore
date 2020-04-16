@@ -10,6 +10,13 @@
 [Ll]ogs/
 [Mm]emoryCaptures/
 
+### duo-android-plugin ###
+# Want to version-control the 'library' in the Android Studio project, despite the exclusions above
+!duo-android-plugin/
+!duo-android-plugin/library/
+!duo-android-plugin/library/*
+
+
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/[Aa]ssets/**/*.meta
 
